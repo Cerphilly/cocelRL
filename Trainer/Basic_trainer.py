@@ -160,8 +160,8 @@ class Basic_trainer:
 
                 self.episode_reward += reward
 
-                if self.env_name == 'Pendulum-v0':
-                    reward = (reward + 8.1) / 8.1
+                if self.env_name == 'Pendulum':
+                    reward = (reward + 8.1368) / 8.1368
 
                 if self.algorithm.buffer.on_policy == False:
                     self.algorithm.buffer.add(observation, action, reward, next_observation, real_done)
