@@ -82,7 +82,8 @@ class REINFORCE:
             dist = torch.distributions.Normal(mu, sigma, validate_args=True)
             log_policy = dist.log_prob(a)
 
-        loss = (-log_policy * returns).sum()
+        loss = log_policy * returns
+        loss = - loss.sum()
         self.network_optimizer.zero_grad()
         loss.backward()
         self.network_optimizer.step()
@@ -94,14 +95,12 @@ class REINFORCE:
         total_loss = 0
         s, a, r, ns, d, _ = self.buffer.all_sample()
 
-        returns = np.zeros_like(r.cpu().numpy())
+        returns = torch.zeros_like(r)
 
         running_return = 0
         for t in reversed(range(len(r))):
             running_return = r[t] + self.gamma * running_return * (1 - d[t])
             returns[t] = running_return
-
-        returns = torch.as_tensor(returns, dtype=torch.float32, device=self.device)
 
         total_loss += self.train_network(s, a, returns)
 
