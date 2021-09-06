@@ -4,7 +4,7 @@ import numpy as np
 
 from Common.Buffer import Buffer
 from Common.Utils import copy_weight, soft_update
-from Network.Basic_Network import Q_Network, V_Network
+from Network.Basic_Network import Q_Network
 from Network.Gaussian_Actor import Squashed_Gaussian_Actor
 
 class SAC_v2:

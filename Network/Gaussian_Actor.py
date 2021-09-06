@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from Common.Utils import weight_init
 from collections import OrderedDict
@@ -21,15 +22,42 @@ class Gaussian_Actor(nn.Module):
 
     def forward(self, state, deterministic=False):
         output = self.network(state)
-        mu, log_std = output.chunk(2, dim=-1)
+        mean, log_std = output.chunk(2, dim=-1)
+        mean = torch.tanh(mean)
+        log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
+        std = log_std.exp()
 
+        dist = torch.distributions.Normal(mean, std, validate_args=True)
 
+        if deterministic == True:
+            log_prob = dist.log_prob(mean)
+            return mean, log_prob
+
+        else:
+            action = dist.sample()
+            log_prob = dist.log_prob(action)
+
+            return action, log_prob
 
     def dist(self, state):
-        pass
+        output = self.network(state)
+        mean, log_std = output.chunk(2, dim=-1)
+        mean = torch.tanh(mean)
+        log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
+        std = log_std.exp()
+
+        dist = torch.distributions.Normal(mean, std, validate_args=True)
+
+        return dist
 
     def mu_sigma(self, state):
-        pass
+        output = self.network(state)
+        mean, log_std = output.chunk(2, dim=-1)
+        mean = torch.tanh(mean)
+        log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
+        std = log_std.exp()
+
+        return mean, std
 
 class Squashed_Gaussian_Actor(nn.Module):
     def __init__(self, state_dim, action_dim, hidden_dim, log_std_min=-10, log_std_max=2):
