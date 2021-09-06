@@ -175,7 +175,7 @@ class Basic_trainer:
 
                 if self.eval == True and self.total_step % self.eval_step == 0:
                     self.evaluate()
-
+            print(self.algorithm.alpha)
             print("Train | Episode: {}, Reward: {:.2f}, Local_step: {}, Total_step: {},".format(self.episode, self.episode_reward, self.local_step, self.total_step))
 
 
