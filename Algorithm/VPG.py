@@ -124,8 +124,10 @@ class VPG:
             previous_value = values[t]
             advantages[t] = running_advantage
 
+        advantages = (advantages - advantages.mean().item()) / (advantages.std(dim=0).item())
+
         total_a_loss += self.train_actor(s, a, advantages.detach())
-        total_c_loss += self.train_critic(s, returns.detach())
+        total_c_loss += self.train_critic(s, returns)
 
         self.buffer.delete()
         return [['Loss/Actor', total_a_loss], ['Loss/Critic', total_c_loss]]

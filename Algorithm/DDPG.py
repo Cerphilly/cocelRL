@@ -92,8 +92,8 @@ class DDPG:
             self.current_step += 1
             s, a, r, ns, d = self.buffer.sample(self.batch_size)
 
-            total_a_loss += self.train_actor(s)
-            total_c_loss += self.train_critic(s, a, r, ns, d)
+            total_a_loss += self.train_actor(s.detach())
+            total_c_loss += self.train_critic(s.detach(), a.detach(), r.detach(), ns.detach(), d.detach())
 
             soft_update(self.actor, self.target_actor, self.tau)
             soft_update(self.critic, self.target_critic, self.tau)
