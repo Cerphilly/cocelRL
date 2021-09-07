@@ -29,7 +29,7 @@ def hyperparameters():
     parser.add_argument('--lambda-gae', default=0.95, type=float)
     parser.add_argument('--actor-lr', default=0.0003, type=float)
     parser.add_argument('--critic-lr', default=0.0003, type=float)
-    parser.add_argument('--hidden-dim', default=256, help='hidden dimension of network')
+    parser.add_argument('--hidden-dim', default=(256, 256), help='hidden dimension of network')
 
     parser.add_argument('--frame-stack', default=3, type=int)
     parser.add_argument('--frame-skip', default=4, type=int)

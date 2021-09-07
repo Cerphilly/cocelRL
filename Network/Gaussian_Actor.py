@@ -6,23 +6,28 @@ from Common.Utils import weight_init
 from collections import OrderedDict
 
 class Gaussian_Actor(nn.Module):
-    def __init__(self, state_dim, action_dim, hidden_dim, log_std_min=-10, log_std_max=2):
+    def __init__(self, state_dim, action_dim, hidden_dim = (256, 256), log_std_min=-10, log_std_max=2):
         super(Gaussian_Actor, self).__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.log_std_min = log_std_min
         self.log_std_max = log_std_max
 
-        self.network = nn.Sequential(OrderedDict([('Layer1', nn.Linear(state_dim, hidden_dim)), ('ReLu1', nn.ReLU()),
-                                                  ('Layer2', nn.Linear(hidden_dim, hidden_dim)), ('ReLu2', nn.ReLU()),
-                                                  ('Layer3', nn.Linear(hidden_dim, action_dim * 2))]))
+        self.network = nn.ModuleList([nn.Linear(state_dim, hidden_dim[0]), nn.ReLU()])
+        for i in range(len(hidden_dim) - 1):
+            self.network.append(nn.Linear(hidden_dim[i], hidden_dim[i + 1]))
+            self.network.append(nn.ReLU())
+        self.network.append(nn.Linear(hidden_dim[-1], action_dim * 2))
 
         self.apply(weight_init)
 
 
     def forward(self, state, deterministic=False):
-        output = self.network(state)
-        mean, log_std = output.chunk(2, dim=-1)
+        z = state
+        for i in range(len(self.network)):
+            z = self.network[i](z)
+
+        mean, log_std = z.chunk(2, dim=-1)
         mean = torch.tanh(mean)
         log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
         std = log_std.exp()
@@ -40,8 +45,11 @@ class Gaussian_Actor(nn.Module):
             return action, log_prob
 
     def dist(self, state):
-        output = self.network(state)
-        mean, log_std = output.chunk(2, dim=-1)
+        z = state
+        for i in range(len(self.network)):
+            z = self.network[i](z)
+
+        mean, log_std = z.chunk(2, dim=-1)
         mean = torch.tanh(mean)
         log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
         std = log_std.exp()
@@ -51,8 +59,11 @@ class Gaussian_Actor(nn.Module):
         return dist
 
     def mu_sigma(self, state):
-        output = self.network(state)
-        mean, log_std = output.chunk(2, dim=-1)
+        z = state
+        for i in range(len(self.network)):
+            z = self.network[i](z)
+
+        mean, log_std = z.chunk(2, dim=-1)
         mean = torch.tanh(mean)
         log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
         std = log_std.exp()
@@ -60,22 +71,27 @@ class Gaussian_Actor(nn.Module):
         return mean, std
 
 class Squashed_Gaussian_Actor(nn.Module):
-    def __init__(self, state_dim, action_dim, hidden_dim, log_std_min=-10, log_std_max=2):
+    def __init__(self, state_dim, action_dim, hidden_dim=(256, 256), log_std_min=-10, log_std_max=2):
         super(Squashed_Gaussian_Actor, self).__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.log_std_min = log_std_min
         self.log_std_max = log_std_max
 
-        self.network = nn.Sequential(OrderedDict([('Layer1', nn.Linear(state_dim, hidden_dim)), ('ReLu1', nn.ReLU()),
-                                                  ('Layer2', nn.Linear(hidden_dim, hidden_dim)), ('ReLu2', nn.ReLU()),
-                                                  ('Layer3', nn.Linear(hidden_dim, action_dim * 2))]))
+        self.network = nn.ModuleList([nn.Linear(state_dim, hidden_dim[0]), nn.ReLU()])
+        for i in range(len(hidden_dim) - 1):
+            self.network.append(nn.Linear(hidden_dim[i], hidden_dim[i + 1]))
+            self.network.append(nn.ReLU())
+        self.network.append(nn.Linear(hidden_dim[-1], action_dim * 2))
 
         self.apply(weight_init)
 
     def forward(self, state, deterministic=False):
-        output = self.network(state)
-        mean, log_std = output.chunk(2, dim=-1)
+        z = state
+        for i in range(len(self.network)):
+            z = self.network[i](z)
+
+        mean, log_std = z.chunk(2, dim=-1)
         log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
         std = log_std.exp()
 
@@ -100,16 +116,23 @@ class Squashed_Gaussian_Actor(nn.Module):
 
 
     def dist(self, state):
-        output = self.network(state)
-        mean, log_std = output.chunk(2, dim=-1)
+        z = state
+        for i in range(len(self.network)):
+            z = self.network[i](z)
+
+        mean, log_std = z.chunk(2, dim=-1)
         log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
         std = log_std.exp()
 
         return torch.distributions.Normal(mean, std)
 
     def mu_sigma(self, state):
-        output = self.network(state)
-        mean, log_std = output.chunk(2, dim=-1)
+        z = state
+        for i in range(len(self.network)):
+            z = self.network[i](z)
+
+        mean, log_std = z.chunk(2, dim=-1)
+
         log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
         std = log_std.exp()
         mean = torch.tanh(mean)
@@ -119,4 +142,10 @@ class Squashed_Gaussian_Actor(nn.Module):
     def entropy(self, state):
         dist = self.dist(state)
         return dist.entropy()
+
+
+
+if __name__ == '__main__':
+    a = Squashed_Gaussian_Actor(3, 2)
+    print(a)
 

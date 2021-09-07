@@ -121,13 +121,12 @@ class Buffer:
         return states, actions, rewards, states_next, dones, cpc_kwargs
 
     def rad_sample(self, batch_size, aug_funcs, pre_image_size=100):
+
         ids = np.random.randint(0, self.max_size if self.full else self.idx, size=batch_size)
 
         states = self.s[ids]
-        actions = self.a[ids]
-        rewards = self.r[ids]
         states_next = self.ns[ids]
-        dones = self.d[ids]
+
 
         for aug, func in aug_funcs.items():
             if 'crop' in aug or 'cutout' in aug:
@@ -135,12 +134,20 @@ class Buffer:
                 states_next = func(states_next)
 
             elif 'translate' in aug:
-
                 states = center_crop_images(states, pre_image_size)
                 states_next = center_crop_images(states_next, pre_image_size)
 
                 states, random_idxs = func(states, return_random_idxs=True)
                 states_next = func(states_next, **random_idxs)
+
+        states = torch.as_tensor(states, dtype=torch.float32, device=self.device)
+        actions = torch.as_tensor(self.a[ids], dtype=torch.float32, device=self.device)
+        rewards = torch.as_tensor(self.r[ids], dtype=torch.float32, device=self.device)
+        states_next = torch.as_tensor(states_next, dtype=torch.float32, device=self.device)
+        dones = torch.as_tensor(self.d[ids], dtype=torch.float32, device=self.device)
+
+        states = states / 255.
+        states_next = states_next / 255.
 
         for aug, func in aug_funcs.items():
             if 'crop' in aug or 'cutout' in aug or 'translate' in aug:
@@ -149,7 +156,7 @@ class Buffer:
             states_next = func(states_next)
 
         if self.on_policy == True:
-            log_probs = self.log_prob[ids]
+            log_probs = torch.as_tensor(self.log_prob[ids], dtype=torch.float32, device=self.device)
             return states, actions, rewards, states_next, dones, log_probs
 
         return states, actions, rewards, states_next, dones

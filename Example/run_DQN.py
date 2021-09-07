@@ -28,7 +28,7 @@ def hyperparameters():
     parser.add_argument('--gamma', default=0.99, type=float)
     parser.add_argument('--learning-rate', default=0.001, type=float)
     parser.add_argument('--epsilon', default=0.1, type=float, help='Exploration probability')
-    parser.add_argument('--hidden-dim', default=256, type=int, help='hidden dimension of network')
+    parser.add_argument('--hidden-dim', default=(256, 256), type=int, help='hidden dimension of network')
     #atari setting
     parser.add_argument('--frame-stack', default=3, type=int)
     parser.add_argument('--frame-skip', default=4, type=int)

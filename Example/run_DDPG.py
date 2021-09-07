@@ -29,7 +29,7 @@ def hyperparameters():
     parser.add_argument('--critic-lr', default=0.001, type=float)
     parser.add_argument('--noise-scale', default=0.1, type=float)
     parser.add_argument('--tau', default=0.005, type=float)
-    parser.add_argument('--hidden-dim', default=256, help='hidden dimension of network')
+    parser.add_argument('--hidden-dim', default=(256, 256), help='hidden dimension of network')
 
     parser.add_argument('--cpu-only', default=False, type=bool, help='force to use cpu only')
     parser.add_argument('--log', default=False, type=bool, help='use tensorboard summary writer to log, if false, cannot use the features below')

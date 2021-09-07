@@ -30,7 +30,11 @@ def soft_update(network, target_network, tau):
     for param, target_param in zip(network.parameters(), target_network.parameters()):
         target_param.data.copy_(target_param * (1 - tau) + param * tau)
 
-
+def tie_conv(source, target):
+    #source ->  target
+    for i in range(source.layer_num):
+        target.conv[i].weight = source.conv[i].weight
+        target.conv[i].bias = source.conv[i].bias
 
 def set_seed(random_seed):
     if random_seed <= 0:
