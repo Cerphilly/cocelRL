@@ -79,10 +79,10 @@ class SAC_v2:
         return alpha_loss.item()
 
     def train_critic(self, s, a, r, ns, d):
-
-        ns_action, ns_logpi = self.actor(ns)
-        target_min_aq = torch.minimum(self.target_critic1(ns, ns_action), self.target_critic2(ns, ns_action))
-        target_q = (r + self.gamma * (1 - d) * (target_min_aq - self.alpha * ns_logpi)).detach()
+        with torch.no_grad():
+            ns_action, ns_logpi = self.actor(ns)
+            target_min_aq = torch.minimum(self.target_critic1(ns, ns_action), self.target_critic2(ns, ns_action))
+            target_q = (r + self.gamma * (1 - d) * (target_min_aq - self.alpha * ns_logpi)).detach()
 
         critic1_loss = F.mse_loss(input=self.critic1(s, a), target=target_q)
         critic2_loss = F.mse_loss(input=self.critic2(s, a), target=target_q)

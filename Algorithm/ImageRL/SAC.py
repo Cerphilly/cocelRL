@@ -97,10 +97,10 @@ class ImageSAC_v2:
         return alpha_loss.item()
 
     def train_critic(self, s, a, r, ns, d):
-
-        ns_action, ns_logpi = self.actor(self.encoder(ns))
-        target_min_aq = torch.minimum(self.target_critic1(self.target_encoder(ns), ns_action), self.target_critic2(self.target_encoder(ns), ns_action))
-        target_q = (r + self.gamma * (1 - d) * (target_min_aq - self.alpha * ns_logpi))
+        with torch.no_grad():
+            ns_action, ns_logpi = self.actor(self.encoder(ns))
+            target_min_aq = torch.minimum(self.target_critic1(self.target_encoder(ns), ns_action), self.target_critic2(self.target_encoder(ns), ns_action))
+            target_q = (r + self.gamma * (1 - d) * (target_min_aq - self.alpha * ns_logpi))
 
         critic1_loss = F.mse_loss(input=self.critic1(self.encoder(s), a), target=target_q)
         critic2_loss = F.mse_loss(input=self.critic2(self.encoder(s), a), target=target_q)

@@ -23,12 +23,11 @@ def weight_init(m):
         nn.init.orthogonal_(m.weight.data[:, :, mid, mid], gain)
 
 def copy_weight(network, target_network):
-    for param, target_param in zip(network.parameters(), target_network.parameters()):
-        target_param.data.copy_(param.data)
+    target_network.load_state_dict(network.state_dict())
 
 def soft_update(network, target_network, tau):
     for param, target_param in zip(network.parameters(), target_network.parameters()):
-        target_param.data.copy_(target_param * (1 - tau) + param * tau)
+        target_param.data.copy_(target_param.data * (1 - tau) + param.data * tau)
 
 def tie_conv(source, target):
     #source ->  target
@@ -180,6 +179,7 @@ def center_crop_image(image, output_size):#center crop for curl
     left = (w - new_w)//2
 
     image = image[:, top:top + new_h, left:left + new_w]
+
     return image
 
 def center_crop_images(image, output_size):

@@ -55,10 +55,15 @@ class PixelEncoder(nn.Module):
 
 if __name__ == '__main__':
     a = PixelEncoder((3, 84, 84), 50, layer_num=4)
-    print(a)
-    import numpy as np
+    # import numpy as np
     b = torch.zeros((1, 3, 84, 84))
-    print(a(b).shape)
-
-
+    from Network.Basic_Network import Policy_Network
+    c = Policy_Network(50, 3, encoder=a)
+    print(c)
+    print(c.parameters())
+    for i in c.parameters():
+        print(i.shape)
+    print("----------------")
+    for i in c.encoder.parameters():
+        print(i.shape)
 
