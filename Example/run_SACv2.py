@@ -10,7 +10,7 @@ def hyperparameters():
     parser = argparse.ArgumentParser(description='Soft Actor Critic (SAC) v2 example')
     #environment
     parser.add_argument('--domain_type', default='gym', type=str, help='gym or dmc, dmc/image')
-    parser.add_argument('--env-name', default='HalfCheetah-v3', help='Pendulum-v0, MountainCarContinuous-v0')
+    parser.add_argument('--env-name', default='InvertedPendulumSwing-v2', help='Pendulum-v0, MountainCarContinuous-v0')
     parser.add_argument('--discrete', default=False, type=bool, help='Always Continuous')
     parser.add_argument('--render', default=True, type=bool)
     parser.add_argument('--training-start', default=1000, type=int, help='First step to start training')

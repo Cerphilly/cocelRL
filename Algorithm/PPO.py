@@ -86,12 +86,12 @@ class PPO:
         if self.discrete == True:
             policy = self.actor(batch_s, activation='softmax')
             dist = torch.distributions.Categorical(probs=policy)
-            log_policy = dist.log_prob(batch_a.squeeze()).reshape(-1, 1)
+            log_policy = dist.log_prob(batch_a.squeeze()).view(-1, 1)
             ratio = (log_policy - batch_old_log_policy).exp()
             surrogate = ratio * batch_advantages
         else:
             dist = self.actor.dist(batch_s)
-            log_policy = dist.log_prob(batch_a)
+            log_policy = dist.log_prob(batch_a).view(-1, 1)
             ratio = (log_policy - batch_old_log_policy).exp()
             surrogate = ratio * batch_advantages
 

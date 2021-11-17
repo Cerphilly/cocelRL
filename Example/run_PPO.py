@@ -11,7 +11,7 @@ def hyperparameters():
     parser.add_argument('--domain_type', default='gym', type=str, help='gym or dmc')
     parser.add_argument('--env-name', default='InvertedPendulum-v2', help='Pendulum-v0, MountainCarContinuous-v0, CartPole-v0')
     parser.add_argument('--discrete', default=False, type=bool, help='whether the environment is discrete or not')
-    parser.add_argument('--render', default=False, type=bool)
+    parser.add_argument('--render', default=True, type=bool)
     parser.add_argument('--training-start', default=0, type=int, help='First step to start training')
     parser.add_argument('--max-step', default=100000, type=int, help='Maximum training step')
     parser.add_argument('--eval', default=False, type=bool, help='whether to perform evaluation')
@@ -19,7 +19,7 @@ def hyperparameters():
     parser.add_argument('--eval-episode', default=10, type=int, help='Number of episodes to perform evaluation')
     parser.add_argument('--random-seed', default=-1, type=int, help='Random seed setting')
     #ppo
-    parser.add_argument('--batch-size', default=16, type=int)
+    parser.add_argument('--batch-size', default=64, type=int)
     parser.add_argument('--buffer-size', default=1000, type=int, help='Buffer maximum size')
     parser.add_argument('--train-mode', default='offline', help='offline')
     parser.add_argument('--ppo-mode', default='clip', help='Clip, Adaptive KL, Fixed KL')
@@ -27,8 +27,8 @@ def hyperparameters():
     parser.add_argument('--training-step', default=1, type=int, help='inverteddobulependulum-v2: 1')
     parser.add_argument('--gamma', default=0.99, type=float)
     parser.add_argument('--lambda-gae', default=0.95, type=float)
-    parser.add_argument('--actor-lr', default=0.0003, type=float)
-    parser.add_argument('--critic-lr', default=0.0003, type=float)
+    parser.add_argument('--actor-lr', default=0.001, type=float)
+    parser.add_argument('--critic-lr', default=0.001, type=float)
     parser.add_argument('--hidden-dim', default=(256, 256), help='hidden dimension of network')
 
     parser.add_argument('--frame-stack', default=3, type=int)

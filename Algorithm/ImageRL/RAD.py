@@ -59,11 +59,11 @@ class RAD:
         self.alpha_optimizer = torch.optim.Adam([self.log_alpha], lr=args.alpha_lr, betas=(0.5, 0.999))
 
         copy_weight(self.critic1, self.target_critic1)
-        #copy_weight(self.critic2, self.target_critic2)
-        copy_weight(self.critic1.encoder, self.target_critic1.encoder)
+        copy_weight(self.critic2, self.target_critic2)
+        copy_weight(self.encoder, self.target_encoder)
 
-        #self.network_list = {'Actor': self.actor, 'Critic1': self.critic1, 'Critic2': self.critic2,
-        #                     'Target_Critic1': self.target_critic1, 'Target_Critic2': self.target_critic2, 'Encoder': self.encoder, 'Target_Encoder': self.target_encoder}
+        self.network_list = {'Actor': self.actor, 'Critic1': self.critic1, 'Critic2': self.critic2,
+                             'Target_Critic1': self.target_critic1, 'Target_Critic2': self.target_critic2, 'Encoder': self.encoder, 'Target_Encoder': self.target_encoder}
         self.aug_funcs = {}
         self.aug_list = {
             'crop': rad.random_crop,
@@ -113,8 +113,10 @@ class RAD:
         return action
 
     def train_alpha(self, s):
+
         with torch.no_grad():
             _, s_logpi = self.actor(s)
+
         alpha_loss = -(self.log_alpha.exp() * (s_logpi.detach() + self.target_entropy)).mean()
 
         self.alpha_optimizer.zero_grad(set_to_none=True)
@@ -124,6 +126,7 @@ class RAD:
         return alpha_loss.item()
 
     def train_critic(self, s, a, r, ns, d):
+
         with torch.no_grad():
             ns_action, ns_logpi = self.actor(ns)
             target_min_aq = torch.minimum(self.target_critic1(ns, ns_action), self.target_critic2(ns, ns_action))
@@ -137,8 +140,6 @@ class RAD:
 
         critic1_loss.backward(retain_graph=True)
         critic2_loss.backward()
-        critic_loss = critic1_loss + critic2_loss
-        critic_loss.backward()
 
         self.critic1_optimizer.step()
         self.critic2_optimizer.step()

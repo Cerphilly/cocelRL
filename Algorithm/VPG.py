@@ -78,11 +78,11 @@ class VPG:
         if self.discrete == True:
             policy = self.actor(s, activation='softmax')
             dist = torch.distributions.Categorical(probs=policy)
-            log_policy = dist.log_prob(a.squeeze()).reshape((-1, 1))
+            log_policy = dist.log_prob(a.squeeze()).view(-1, 1)
 
         else:
             dist = self.actor.dist(s)
-            log_policy = dist.log_prob(a)
+            log_policy = dist.log_prob(a).view(-1, 1)
 
         actor_loss = - log_policy * advantages
         actor_loss = actor_loss.sum()

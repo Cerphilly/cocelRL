@@ -51,7 +51,7 @@ def hyperparameters():
     #rad&encoder
     parser.add_argument('--layer-num', default=4, type=int)
     parser.add_argument('--filter-num', default=32, type=int)
-    parser.add_argument('--encoder-tau', default=0.05, type=float)
+    parser.add_argument('--encoder-tau', default=0.01, type=float)
     parser.add_argument('--feature-dim', default=50, type=int)
 
     parser.add_argument('--cpu-only', default=False, type=bool, help='force to use cpu only')
